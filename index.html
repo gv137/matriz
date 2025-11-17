@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matriz de Eisenhower - Organização de Tarefas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+
+        .info-box {
+            background: rgba(255,255,255,0.95);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            line-height: 1.6;
+        }
+
+        .info-box h2 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .info-box p {
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .controls {
+            background: rgba(255,255,255,0.95);
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .input-group {
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 0.95em;
+        }
+
+        .input-group input,
+        .input-group select {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-add {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-add:active {
+            transform: translateY(0);
+        }
+
+        .btn-clear {
+            padding: 12px 25px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-clear:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .quadrant {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 400px;
+        }
+
+        .quadrant:hover {
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+
+        .quadrant-header {
+            padding: 20px;
+            color: white;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .quadrant-1 .quadrant-header {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .quadrant-2 .quadrant-header {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        }
+
+        .quadrant-3 .quadrant-header {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .quadrant-4 .quadrant-header {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        }
+
+        .quadrant-title {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .quadrant-name {
+            font-size: 1.2em;
+            margin-bottom: 4px;
+        }
+
+        .quadrant-label {
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+
+        .task-count {
+            background: rgba(255,255,255,0.3);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 700;
+        }
+
+        .quadrant-content {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .task {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideIn 0.3s ease;
+            transition: all 0.3s ease;
+        }
+
+        .task:hover {
+            background: #f3f4f6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .task.completed {
+            opacity: 0.6;
+            background: #e8e8e8;
+        }
+
+        .task.completed .task-text {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            margin-right: 12px;
+            accent-color: #667eea;
+        }
+
+        .task-text {
+            flex: 1;
+            color: #333;
+            word-break: break-word;
+        }
+
+        .task-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            margin-left: 10px;
+        }
+
+        .task-btn:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        .footer {
+            background: rgba(255,255,255,0.95);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: #666;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .footer h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .input-group {
+                width: 100%;
+            }
+
+            .matrix-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .quadrant {
+                min-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Matriz de Eisenhower</h1>
+            <p>Organize suas tarefas diárias por prioridade</p>
+        </div>
+
+        <div class="info-box">
+            <h2>O que é a Matriz de Eisenhower?</h2>
+            <p>
+                A Matriz de Eisenhower é uma ferramenta poderosa de gestão do tempo que ajuda a priorizar tarefas 
+                com base em sua <strong>urgência</strong> e <strong>importância</strong>. Ela divide as atividades em 
+                quatro quadrantes, permitindo que você se concentre no que realmente importa.
+            </p>
+            <p>
+                Combinada com metodologia ágil, essa matriz otimiza o refinamento de backlog, planejamento de sprints 
+                e tomada de decisões rápidas, garantindo que o time trabalhe sempre em atividades de alto valor.
+            </p>
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label for="taskInput">📝 Nova Tarefa</label>
+                <input type="text" id="taskInput" placeholder="Digite sua tarefa aqui...">
+            </div>
+            <div class="input-group">
+                <label for="quadrantSelect">🎯 Quadrante</label>
+                <select id="quadrantSelect">
+                    <option value="1">Fazer Primeiro (Urgente e Importante)</option>
+                    <option value="2">Agendar (Importante mas Não Urgente)</option>
+                    <option value="3">Delegar (Urgente mas Não Importante)</option>
+                    <option value="4">Eliminar (Não Urgente e Não Importante)</option>
+                </select>
+            </div>
+            <button class="btn-add" onclick="addTask()">Adicionar Tarefa</button>
+            <button class="btn-clear" onclick="clearAll()">Limpar Tudo</button>
+        </div>
+
+        <div class="matrix-grid">
+            <div class="quadrant quadrant-1">
+                <div class="quadrant-header">
+                    <div class="quadrant-title">
+                        <div class="quadrant-name">🔴 Fazer Primeiro</div>
+                        <div class="quadrant-label">Urgente e Importante</div>
+                    </div>
+                    <div class="task-count" id="count-1">0</div>
+                </div>
+                <div class="quadrant-content">
+                    <div class="task-list" id="tasks-1"></div>
+                </div>
+            </div>
+
+            <div class="quadrant quadrant-2">
+                <div class="quadrant-header">
+                    <div class="quadrant-title">
+                        <div class="quadrant-name">🟢 Agendar</div>
+                        <div class="quadrant-label">Importante mas Não Urgente</div>
+                    </div>
+                    <div class="task-count" id="count-2">0</div>
+                </div>
+                <div class="quadrant-content">
+                    <div class="task-list" id="tasks-2"></div>
+                </div>
+            </div>
+
+            <div class="quadrant quadrant-3">
+                <div class="quadrant-header">
+                    <div class="quadrant-title">
+                        <div class="quadrant-name">🟡 Delegar</div>
+                        <div class="quadrant-label">Urgente mas Não Importante</div>
+                    </div>
+                    <div class="task-count" id="count-3">0</div>
+                </div>
+                <div class="quadrant-content">
+                    <div class="task-list" id="tasks-3"></div>
+                </div>
+            </div>
+
+            <div class="quadrant quadrant-4">
+                <div class="quadrant-header">
+                    <div class="quadrant-title">
+                        <div class="quadrant-name">⚪ Eliminar</div>
+                        <div class="quadrant-label">Não Urgente e Não Importante</div>
+                    </div>
+                    <div class="task-count" id="count-4">0</div>
+                </div>
+                <div class="quadrant-content">
+                    <div class="task-list" id="tasks-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <h3>💡 Conexão com Metodologia Ágil</h3>
+            <p>
+                Esta ferramenta se integra perfeitamente com práticas ágeis como Scrum e Kanban. 
+                Usada para refinar o backlog, planejar sprints, priorizar user stories e eliminar desperdícios, 
+                garantindo que sua equipe sempre trabalhe no que realmente agregará valor ao produto.
+            </p>
+
+            <br>
+            <hr>
+            <br>
+            
+            <p> &copy; <strong>Gustavo Viana & Ricardo Rodrigues</strong></p>
+        </div>
+    </div>
+
+    <script>
+        // Armazenamento de tarefas em memória
+        const tasks = {
+            1: [],
+            2: [],
+            3: [],
+            4: []
+        };
+
+        // Adicionar tarefa
+        function addTask() {
+            const taskInput = document.getElementById('taskInput');
+            const quadrantSelect = document.getElementById('quadrantSelect');
+            const taskText = taskInput.value.trim();
+            const quadrant = quadrantSelect.value;
+
+            if (taskText === '') {
+                alert('Por favor, digite uma tarefa!');
+                return;
+            }
+
+            const task = {
+                id: Date.now(),
+                text: taskText,
+                completed: false
+            };
+
+            tasks[quadrant].push(task);
+            taskInput.value = '';
+            taskInput.focus();
+            renderTasks();
+        }
+
+        // Renderizar tarefas
+        function renderTasks() {
+            for (let q = 1; q <= 4; q++) {
+                const taskList = document.getElementById(`tasks-${q}`);
+                const count = document.getElementById(`count-${q}`);
+                
+                if (tasks[q].length === 0) {
+                    taskList.innerHTML = '<div class="empty-state">Nenhuma tarefa neste quadrante</div>';
+                    count.textContent = '0';
+                } else {
+                    taskList.innerHTML = tasks[q].map(task => `
+                        <div class="task ${task.completed ? 'completed' : ''}">
+                            <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} 
+                                   onchange="toggleTask(${q}, ${task.id})">
+                            <span class="task-text">${escapeHtml(task.text)}</span>
+                            <button class="task-btn" onclick="deleteTask(${q}, ${task.id})">×</button>
+                        </div>
+                    `).join('');
+                    count.textContent = tasks[q].length;
+                }
+            }
+        }
+
+        // Marcar tarefa como completa
+        function toggleTask(quadrant, taskId) {
+            const task = tasks[quadrant].find(t => t.id === taskId);
+            if (task) {
+                task.completed = !task.completed;
+                renderTasks();
+            }
+        }
+
+        // Deletar tarefa
+        function deleteTask(quadrant, taskId) {
+            tasks[quadrant] = tasks[quadrant].filter(t => t.id !== taskId);
+            renderTasks();
+        }
+
+        // Limpar todas as tarefas
+        function clearAll() {
+            if (confirm('Tem certeza que deseja limpar todas as tarefas?')) {
+                for (let q = 1; q <= 4; q++) {
+                    tasks[q] = [];
+                }
+                renderTasks();
+            }
+        }
+
+        // Escapar caracteres HTML para segurança
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Permitir adicionar tarefa com Enter
+        document.getElementById('taskInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+
+        // Inicializar
+        renderTasks();
+    </script>
+</body>
+</html>
