@@ -315,6 +315,16 @@
             font-size: 1.1em;
         }
 
+        .storage-info {
+            background: rgba(52, 211, 153, 0.1);
+            border-left: 4px solid #10b981;
+            padding: 12px 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #047857;
+        }
+
         @keyframes slideDown {
             from {
                 opacity: 0;
@@ -379,6 +389,9 @@
                 Combinada com metodologia ágil, essa matriz otimiza o refinamento de backlog, planejamento de sprints 
                 e tomada de decisões rápidas, garantindo que o time trabalhe sempre em atividades de alto valor.
             </p>
+            <div class="storage-info">
+                ✅ <strong>Dados salvos automaticamente:</strong> Suas tarefas serão preservadas mesmo após atualizar a página ou fechar o navegador!
+            </div>
         </div>
 
         <div class="controls">
@@ -457,26 +470,48 @@
             <h3>💡 Conexão com Metodologia Ágil</h3>
             <p>
                 Esta ferramenta se integra perfeitamente com práticas ágeis como Scrum e Kanban. 
-                Usada para refinar o backlog, planejar sprints, priorizar user stories e eliminar desperdícios, 
+                Use-a para refinar o backlog, planejar sprints, priorizar user stories e eliminar desperdícios, 
                 garantindo que sua equipe sempre trabalhe no que realmente agregará valor ao produto.
             </p>
-
-            <br>
-            <hr>
-            <br>
-            
-            <p> &copy; <strong>Gustavo Viana & Ricardo Rodrigues</strong></p>
         </div>
     </div>
 
     <script>
+        // Chave para armazenar dados no LocalStorage
+        const STORAGE_KEY = 'eisenhower_tasks';
+
         // Armazenamento de tarefas em memória
-        const tasks = {
+        let tasks = {
             1: [],
             2: [],
             3: [],
             4: []
         };
+
+        // Carregar tarefas do LocalStorage
+        function loadTasks() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    tasks = JSON.parse(saved);
+                    console.log('✅ Tarefas carregadas do armazenamento local');
+                } catch (e) {
+                    console.error('Erro ao carregar tarefas:', e);
+                    tasks = { 1: [], 2: [], 3: [], 4: [] };
+                }
+            }
+        }
+
+        // Salvar tarefas no LocalStorage
+        function saveTasks() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+                console.log('✅ Tarefas salvas automaticamente');
+            } catch (e) {
+                console.error('Erro ao salvar tarefas:', e);
+                alert('Não foi possível salvar as tarefas. Seu navegador pode estar em modo privado.');
+            }
+        }
 
         // Adicionar tarefa
         function addTask() {
@@ -497,6 +532,7 @@
             };
 
             tasks[quadrant].push(task);
+            saveTasks();
             taskInput.value = '';
             taskInput.focus();
             renderTasks();
@@ -530,6 +566,7 @@
             const task = tasks[quadrant].find(t => t.id === taskId);
             if (task) {
                 task.completed = !task.completed;
+                saveTasks();
                 renderTasks();
             }
         }
@@ -537,16 +574,19 @@
         // Deletar tarefa
         function deleteTask(quadrant, taskId) {
             tasks[quadrant] = tasks[quadrant].filter(t => t.id !== taskId);
+            saveTasks();
             renderTasks();
         }
 
         // Limpar todas as tarefas
         function clearAll() {
-            if (confirm('Tem certeza que deseja limpar todas as tarefas?')) {
+            if (confirm('Tem certeza que deseja limpar TODAS as tarefas? Esta ação não pode ser desfeita!')) {
                 for (let q = 1; q <= 4; q++) {
                     tasks[q] = [];
                 }
+                saveTasks();
                 renderTasks();
+                alert('Todas as tarefas foram removidas!');
             }
         }
 
@@ -564,8 +604,16 @@
             }
         });
 
-        // Inicializar
-        renderTasks();
+        // Inicializar - Carregar dados salvos
+        window.addEventListener('DOMContentLoaded', function() {
+            loadTasks();
+            renderTasks();
+        });
+
+        // Salvar dados ao sair da página (opcional - para mais segurança)
+        window.addEventListener('beforeunload', function() {
+            saveTasks();
+        });
     </script>
 </body>
 </html>
